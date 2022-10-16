@@ -2,7 +2,10 @@ package org.launchcode.techjobs.persistent.controllers;
 
 import org.launchcode.techjobs.persistent.models.Employer;
 import org.launchcode.techjobs.persistent.models.Job;
+import org.launchcode.techjobs.persistent.models.Skill;
 import org.launchcode.techjobs.persistent.models.data.EmployerRepository;
+import org.launchcode.techjobs.persistent.models.data.JobRepository;
+import org.launchcode.techjobs.persistent.models.data.SkillRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -22,6 +25,10 @@ public class HomeController {
 
     @Autowired
     private EmployerRepository employerRepository;
+    @Autowired
+    private SkillRepository skillRepository;
+    @Autowired
+    private JobRepository jobRepository;
 
     @RequestMapping("")
     public String index(Model model) {
@@ -40,6 +47,12 @@ public class HomeController {
             employers.add(e);
         }
         model.addAttribute("employers", employers);
+
+        List<Skill> skills = new ArrayList<>();
+        for (Skill s : skillRepository.findAll()) {
+            skills.add(s);
+        }
+        model.addAttribute("skills", skills);
         model.addAttribute(new Job());
         return "add";
     }
@@ -57,6 +70,12 @@ public class HomeController {
             Employer employer = optEmployer.get();
             newJob.setEmployer(employer);
         }
+        List<Skill> skillList = new ArrayList<>();
+        for(Skill s : skillRepository.findAllById(skills)){
+            skillList.add(s);
+        }
+        newJob.setSkills(skillList);
+        jobRepository.save(newJob);
 
         return "redirect:";
     }
