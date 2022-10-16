@@ -1,13 +1,18 @@
 package org.launchcode.techjobs.persistent.controllers;
 
+import org.launchcode.techjobs.persistent.models.Employer;
 import org.launchcode.techjobs.persistent.models.Job;
+import org.launchcode.techjobs.persistent.models.data.EmployerRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.Errors;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Created by LaunchCode
@@ -15,12 +20,14 @@ import java.util.List;
 @Controller
 public class HomeController {
 
-
+    @Autowired
+    private EmployerRepository employerRepository;
 
     @RequestMapping("")
     public String index(Model model) {
 
         model.addAttribute("title", "My Jobs");
+
 
         return "index";
     }
@@ -28,6 +35,11 @@ public class HomeController {
     @GetMapping("add")
     public String displayAddJobForm(Model model) {
         model.addAttribute("title", "Add Job");
+        List<Employer> employers = new ArrayList<>();
+        for (Employer e : employerRepository.findAll()) {
+            employers.add(e);
+        }
+        model.addAttribute("employers", employers);
         model.addAttribute(new Job());
         return "add";
     }
@@ -39,6 +51,11 @@ public class HomeController {
         if (errors.hasErrors()) {
             model.addAttribute("title", "Add Job");
             return "add";
+        }
+        Optional<Employer> optEmployer = employerRepository.findById(employerId);
+        if (optEmployer.isPresent()) {
+            Employer employer = optEmployer.get();
+            newJob.setEmployer(employer);
         }
 
         return "redirect:";
